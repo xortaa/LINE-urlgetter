@@ -12,14 +12,29 @@ lis.forEach(li => {
   imgUrls.push(imgUrl)
 })
 
-for (let i = 0; i < imgUrls.length; i++) {
-  const link = document.createElement('a')
-  link.href = imgUrls[i];
-  const stickerId = imgUrls[i].split('/')[6] 
-  link.download = `${stickerId}.png`
-  document.body.appendChild(link)
-  link.click()
-  setTimeout(() => {
-    document.body.removeChild(link)
-  }, 1000)
+let index = 0
+const downloadImage = () => {
+  if (index >= imgUrls.length) {
+    return
+  }
+
+  const xhr = new XMLHttpRequest()
+  xhr.responseType = 'blob'
+  xhr.onload = () => {
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(xhr.response)
+    const stickerId = imgUrls[index].split('/')[6] 
+    link.download = `${stickerId}.png`
+    document.body.appendChild(link)
+    link.click()
+    setTimeout(() => {
+      document.body.removeChild(link)
+      index++
+      downloadImage()
+    }, 1000)
+  }
+  xhr.open('GET', imgUrls[index])
+  xhr.send()
 }
+
+downloadImage()
